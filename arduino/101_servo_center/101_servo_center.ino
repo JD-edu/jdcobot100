@@ -19,38 +19,62 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN TH
 SOFTWARE.*/
-#include<Servo.h>
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 
-Servo base;
-Servo shoulder;
-Servo upperarm;
-Servo forearm;
-Servo gripper;
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-int baseAngle = 90;
-int shoulderAngle = 90;
-int upperarmAngle = 90;
-int forearmAngle = 90;
-int gripperAngle = 90;
+#define pulse_us_min 500            // 최소 펄스 길이 ms = 1000 µs
+#define pulse_us_max 2450           // 최대 펄스 길이 ms = 1000 µs
+#define servo_freq 50               // 서보 주파수 (Hz)
+#define servo_driver_bits 4096
+
+#define base 0
+#define shoulder 1
+#define upperarm 2
+#define forearm 3
+#define gripper 4
+
+double baseAngle = 90;
+double shoulderAngle = 90;
+double upperarmAngle = 90;
+double forearmAngle = 90;
+double gripperAngle = 90;
+double motor_step = 0.5;
+
+int delay_time = 15;
+int delay_time_setup = 0;
+
+double angle_list[5] = {baseAngle, shoulderAngle, upperarmAngle, forearmAngle, gripperAngle};
+
+long period_us = 1000000 / servo_freq; // 주기 (µs)
+long pulse_min = (pulse_us_min / (double)period_us) * servo_driver_bits;
+long pulse_max = (pulse_us_max / (double)period_us) * servo_driver_bits;
+
+bool stop_flag = false;
+
+String base_str;
+String shoulder_str;
+String upperarm_str;
+String forearm_str;
+String gripper_str;
+String inString;
+
+void set_servo(uint8_t n, double angle) {
+  double pulse = map(angle, 0, 180, pulse_min, pulse_max);
+  pwm.setPWM(n, 0, pulse);
+}
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
-  base.attach(3);
-  base.write(baseAngle);
-  shoulder.attach(5);
-  shoulder.write(shoulderAngle);
-  forearm.attach(6);
-  forearm.write(forearmAngle);
-  upperarm.attach(9);
-  upperarm.write(upperarmAngle);
-
+  pwm.begin();
+  pwm.setOscillatorFrequency(27000000);
+  pwm.setPWMFreq(servo_freq);
+  delay(10);
+ 
 }
 
 void loop() {
-  base.write(90);
-  shoulder.write(90);
-  forearm.write(90);
-  upperarm.write(90);
+  pwm.setPWM(0, 90);
   delay(2000);
 }
