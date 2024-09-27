@@ -27,7 +27,7 @@ from tkinter import ttk
 import time
 
 # 시리얼 통신 설정
-ser = serial.Serial('COM7', 115200, timeout=1)  # COM 포트 및 보레이트 설정
+ser = serial.Serial('COM37', 115200, timeout=1)  # COM 포트 및 보레이트 설정
 
 # GUI 설정
 root = tk.Tk()

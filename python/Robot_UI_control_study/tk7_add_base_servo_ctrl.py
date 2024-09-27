@@ -123,7 +123,7 @@ m_robot_run_btn.grid(column=1, row=8,padx=10,pady=5,sticky='w')
 m_robot_stop_btn.grid(column=2, row=8,padx=10,pady=5,sticky='w')
 
 # Serial port 
-ser = serial.Serial('COM3', 115200, timeout=1)
+ser = serial.Serial('COM34', 115200, timeout=1)
         
 
        
