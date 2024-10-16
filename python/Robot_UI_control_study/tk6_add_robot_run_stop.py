@@ -25,17 +25,17 @@ SOFTWARE.
 import tkinter as tk
 from tkinter import ttk
 
-def select_serial(selection):
-    print(selection)
+def select_serial():
+    pass
 
 def start_serial():
-    print('start serial')
+    pass
 
 def stop_serial():
-    print('stop servo')
+    pass
 
-def slide_handler_0(selection):
-    print(selection)
+def slide_handler_0():
+    pass
 
 def run_robot():
     pass
@@ -46,7 +46,7 @@ def stop_robot():
 serial_list = ['시리얼 포트를 선택하세요.']
 
 root = tk.Tk()
-root.title('KG-KAIROS Robot Control')
+root.title('JDcobot 100 Control')
 #root.geometry('600x480')
 
 m_serial_select = ttk.Frame(root)
@@ -74,8 +74,8 @@ start_serial_btn.pack(side='left',padx=10)
 stop_serial_btn = ttk.Button(m_serial_stop_btn, text="Stop serial", command=stop_serial)
 stop_serial_btn.pack(side='left',padx=10)
 
-start_serial_btn.configure(state='enable')
-stop_serial_btn.configure(state='enable')
+start_serial_btn.configure(state='disable')
+stop_serial_btn.configure(state='disable')
 
 # add servo angle label using frame
 m_link0 = ttk.Frame(root)       # link 0  

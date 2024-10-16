@@ -26,14 +26,14 @@ import tkinter as tk
 from tkinter import ttk
 import serial 
 
-def select_serial(selection):
-    print(selection)
+def select_serial():
+    pass
 
 def start_serial():
-    print('start serial')
+    pass
 
 def stop_serial():
-    print('stop servo')
+    pass
 
 def slide_handler_base(event):
     global angle_0
@@ -44,9 +44,9 @@ def slide_handler_base(event):
 
 def run_robot():
     global angle_0
-    cmd = '2a'+str(int(angle_0))+'b'+str(int(angle_0))+'c90d90e\n'
+    cmd = '2a'+str(int(angle_0))+'b90c90d90e\n'
     print(cmd)
-    ser.write(cmd.encode())
+    seq.write(cmd.encode())
     print(cmd.encode())
 
 def stop_robot():
@@ -58,7 +58,7 @@ angle_0 = 90
 serial_list = ['시리얼 포트를 선택하세요.']
 
 root = tk.Tk()
-root.title('KG-KAIROS Robot Control')
+root.title('JDcobot 100 Control')
 #root.geometry('600x480')
 
 m_serial_select = ttk.Frame(root)
@@ -86,8 +86,8 @@ start_serial_btn.pack(side='left',padx=10)
 stop_serial_btn = ttk.Button(m_serial_stop_btn, text="Stop serial", command=stop_serial)
 stop_serial_btn.pack(side='left',padx=10)
 
-start_serial_btn.configure(state='enable')
-stop_serial_btn.configure(state='enaable')
+start_serial_btn.configure(state='disable')
+stop_serial_btn.configure(state='disable')
 
 # add servo angle label using frame
 m_link0 = ttk.Frame(root)       # link 0  
@@ -123,7 +123,13 @@ m_robot_run_btn.grid(column=1, row=8,padx=10,pady=5,sticky='w')
 m_robot_stop_btn.grid(column=2, row=8,padx=10,pady=5,sticky='w')
 
 # Serial port 
-ser = serial.Serial('COM34', 115200, timeout=1)
+seq = serial.Serial(
+            baudrate=115200,
+            parity=serial.PARITY_NONE,
+            stopbits=serial.STOPBITS_ONE,
+            bytesize=serial.EIGHTBITS,
+            timeout=1
+        )
         
 
        

@@ -33,8 +33,10 @@ def select_serial():
     pass
 
 def start_serial():
-    pass
-    
+    global seq
+    print("test-1")
+    seq.port = "COM4"
+    seq.open()
 
 def stop_serial():
     pass
@@ -48,7 +50,7 @@ def slide_handler_base(event):
 
 def run_robot():
     global angle_0
-    cmd = '2a'+str(int(angle_0))+'b90c90d90e\n'
+    cmd = '2a'+str(int(angle_0))+'b90c90d90e90f\n'
     print(cmd)
     seq.write(cmd.encode())
     print(cmd.encode())
@@ -116,7 +118,7 @@ startTimer(1, False)
 serial_list = ['시리얼 포트를 선택하세요.']
 
 root = tk.Tk()
-root.title('KG-KAIROS Robot Control')
+root.title('JDcobot 100 Control')
 #root.geometry('600x480')
 
 m_serial_select = ttk.Frame(root)
