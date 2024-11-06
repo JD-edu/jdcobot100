@@ -98,3 +98,4 @@ jdCobot100전체 부품 사진
 조립된 로봇암을 동작시키는 모습은 다음과 같습니다. 
 
 ![17_최종_2](https://github.com/user-attachments/assets/ea3d89c8-91e3-44aa-ab1e-67319b9a8e69)
+![17_최종_2](https://github.com/user-attachments/assets/e0137f07-8277-4ef0-98eb-77d7ef355eee)
