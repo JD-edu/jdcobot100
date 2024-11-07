@@ -4,7 +4,7 @@
 
 ### 1. 배선
 1. 코드의 관절 번호에 맞게 실드에 연결한다.
-(pwm와 전원의 방향을 잘 확인하고 넣어주세요.)
+아두이노에서 pwm 신호를 받기 위한 것으로, pwm와 전원선의 방향을 잘 확인하고 넣어주세요.
 ```c
 base 0
 shoulder 1
@@ -19,12 +19,24 @@ gripper 4
 
 ### 2. 아두이노
 1. 노트북에 아두이노를 연결한다.
-2. <arduino/101_servo_center.ino>를 아두이노 보드에 업로드해 서보가 센터에 맞게 조립이 되었는지 확인 및 정렬한다.
+2. <arduino/101_servo_center.ino>를 아두이노 보드에 업로드한다.
 ![1서보정렬](https://github.com/user-attachments/assets/cf242a52-391c-43b0-a671-91dd86a2449c)
-3. <arduino/105_abcd_string_robot_control.ino>를 아두이노 보드에 업로드한다.
-![2abcd프로토콜](https://github.com/user-attachments/assets/b4c03bd9-cff1-45d5-9c2e-d5b7fbd49278)
+PWM 신호로 서보 모터를 제어하기 위한 설정 및 초기화를 하고 기본 위치로 서보 모터를 움직이는 코드로 jdcobot100을 본격적으로 작동시키기 전에 서보모터의 기본 위치에 맞게 조립이 잘 되었는지 확인하고 서보모터를 정렬합니다.
+3. <arduino/302_ros_joint_state_sub.ino>를 아두이노 보드에 업로드한다.
+![2abcd프로토콜](https://github.com/user-attachments/assets/e2f4c5cb-4a22-46ac-8115-79b0b2efe81f)
+시리얼 입력을 통해 서보 모터의 각도를 파싱하고, 서보 모터를 해당 각도로 제어하는 코드입니다.
+
+```c
+baseAngle = inString.substring(inString.indexOf('a') + 1, inString.indexOf('b')).toInt();
+shoulderAngle = inString.substring(inString.indexOf('b') + 1, inString.indexOf('c')).toInt();
+upperarmAngle = inString.substring(inString.indexOf('c') + 1, inString.indexOf('d')).toInt();
+forearmAngle = inString.substring(inString.indexOf('d') + 1, inString.indexOf('e')).toInt();
+gripperAngle = inString.substring(inString.indexOf('e') + 1, inString.indexOf('f')).toInt();
+```
+코드 업로드 후, 시리얼모니터에 a90b90c90d90e90f와 같은 문자열을 입력해 각 서보 모터(base, shoulder, upperarm, forearm, gripper)를 제어할 수 있습니다.
 
 ### 3. 파이썬
+GUI를 통해 로봇암을 제어하기 위해 파이썬 파일을 실행합니다. Tkinter GUI와 시리얼 통신을 사용해 직관적인 인터페이스로 쉽게 제어할 수 있습니다.
 1. <python/Robot_UI_control_study/tk12_add_trajectory.py>를 실행한다.
 ![1python실행화면](https://github.com/user-attachments/assets/bdf9aa81-94f0-40cb-ae99-004f05eb935c)
 2. 아두이노가 연결된 포트와 시리얼을 연결한다.
