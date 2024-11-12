@@ -1,8 +1,13 @@
 ## jdcobot100 아두이노 코드 설명
 ### 목차
 [101_servo_center](#101_servo_center)
+[102_abcd_protocol_decoding](#102_abcd_protocol_decoding)
 
 ### 101_servo_center
+
+JDCobot100의 각 관절을 초기 상태로 설정하기 위한 코드입니다.
+서보 정렬, 동작 테스트 등에 사용하시길 바랍니다.
+
 1. 서보 드라이버 객체 생성
 ```c
 Adafruit_PWMServoDriver pwm = adafruit_PWMServoDriver();
@@ -94,3 +99,7 @@ void loop() {
 }
 ```
 각 관절을 기본 각도로 설정합니다.
+
+
+### 102_abcd_protocol_decoding
+
