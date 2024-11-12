@@ -39,7 +39,7 @@ double baseAngle = 90;
 double shoulderAngle = 90;
 double upperarmAngle = 90;
 double forearmAngle = 90;
-double gripperAngle = 90;
+double gripperAngle = 180;
 double motor_step = 0.5;
 
 int delay_time = 15;
@@ -75,6 +75,9 @@ void setup() {
 }
 
 void loop() {
-  pwm.setPWM(0, 90);
+  for (int i = 0; i < 5; i++){
+    set_servo(i, angle_list[i]);
+    delay(delay_time);
+  }
   delay(2000);
 }
