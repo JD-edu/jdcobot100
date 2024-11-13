@@ -78,9 +78,9 @@ jdCobot100전체 부품 사진
 - SG90 서보 및 서보 혼
 - M2x20 볼트 M2 너트 각 2개 
 
-![12_그리퍼_2](https://github.com/user-attachments/assets/14bb12ad-d0d6-451f-8aa9-e31273d58932)
+![12_그리퍼_2](https://github.com/user-attachments/assets/4d8d8650-c028-43c7-86d3-5fd62644804c)
 
-![13_그리퍼_3](https://github.com/user-attachments/assets/c3270054-e456-4714-b611-ac627dd517a3)
+![13_그리퍼_3](https://github.com/user-attachments/assets/0301b9ce-51c7-4257-bfd7-336faae7f23d)
 
 그리퍼를 최종 조립하면 다음과 같이 조립이 됩니다. 그리퍼는 암3에 M2x20 볼트와 M2너트를 사용하여 결합합니다. 
 ![15_그리퍼_5](https://github.com/user-attachments/assets/6b4dcebc-f9ab-4a80-9692-ec3a74f7709d)
