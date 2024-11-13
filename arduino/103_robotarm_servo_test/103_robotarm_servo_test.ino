@@ -68,11 +68,13 @@ void setup() {
   upperarm.write(upperarmAngle);
 
 }
+
 int status1 = 0;  // base status
-  int status2 = 0;
-  int status3 = 0;
-  int status4 = 0; 
-  int done = 0 ;
+int status2 = 0;
+int status3 = 0;
+int status4 = 0; 
+int done = 0 ;
+
 void loop() {
       // this value tells when all the joints have reached thier positions
   while(done == 0){     // Loop until all joints have reached thier positions                      && ready == 1
@@ -83,7 +85,7 @@ void loop() {
     status3 = servoParallelControl(120, forearm, 20);
     status4 = servoParallelControl(120, upperarm, 20);         
     // Check whether all the joints have reached their positions
-    if (status1 == 1 && status1 == 2 && status1 == 3 && status1 == 4  ){
+    if (status1 == 1 && status2 == 1 && status3 == 1 && status4 == 1 ){
       done = 1; //When done =1 then the loop will stop
     }   
   }// end of while
