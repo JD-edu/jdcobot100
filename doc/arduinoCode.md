@@ -2,7 +2,9 @@
 ### 목차
 [101_servo_center](#101_servo_center) 관절 초기화   
 [102_abcd_protocol_decoding](#102_abcd_protocol_decoding) 시리얼 통신 확인   
-[]
+[103_robotarm_servo_test.ino](#103_robotarm_servo_testino) 모터 각도 변화 및 병렬 제어 테스트   
+[104_oled_test.ino](#104_oled_testino) SSD1306 OLED 테스트   
+[105_abcd_string_robot_control.ino](#105_abcd_string_robot_controlino)
 
 ### 101_servo_center
 
@@ -175,3 +177,157 @@ void loop() {
 ```
 시리얼 입력이 있을 때 데이터를 한 줄 단위(`\n` 기준)로 읽어옵니다.   
 `a[Base]b[Shoulder]c[Upperarm]d[Forearm]e` 형식으로 값을 읽어 정수로 변환한 후, 각도를 설정하고 결과를 시리얼로 출력합니다.   
+
+### 103_robotarm_servo_test.ino
+
+모터를 90도에서 120도까지 천천히 변화시키는 코드입니다.   
+모터의 각도 변화 및 병렬 제어를 간단히 테스트할 때 사용할 수 있습니다.   
+
+1. 라이브러리 포함 및 변수 선언
+```c
+#include <Servo.h>
+```
+서보 모터 제어를 위해 Servo 라이브러리를 사용합니다.
+
+```c
+Servo base;
+Servo shoulder;
+Servo forearm;
+Servo upperarm;
+int baseAngle = 90;
+int shoulderAngle = 90;
+int forearmAngle = 90;
+int upperarmAngle = 90;
+```
+관절을 제어하기 위해 각 관절에 대해 Servo 객체를 생성하고 기본 각도를 90도로 설정합니다.   
+
+2. `servoParallelControl`함수
+```c
+int servoParallelControl (int thePos, Servo theServo, int speed){
+    int startPos = theServo.read();       //read the current position of the servo we are working with.
+    int newPos = startPos;                // newPos holds the position of the servo as it moves
+    
+    //define where the pos is with respect to the command
+    // if the current position is less that the desired move the position up
+    if (startPos < (thePos)){
+       newPos = newPos + 1;               
+       theServo.write(newPos);
+       delay(speed);
+       return 0;                          // Tell primary program that servo has not reached its position     
+    }
+    // Else if the current position is greater than the desired move the servo down
+    else if (newPos > (thePos)){
+      newPos = newPos - 1;
+      theServo.write(newPos);
+      delay(speed);
+      return 0;  
+    }  
+    // If the servo is +-5 within the desired range then tell the main program that the servo has reached the desired position.
+    else {
+        return 1;
+    }  
+}
+```
+서보를 원하는 각도(`thePos`)까지 천천히 이동시키기 위한 함수입니다.   
+현재 각도와 목표 각도를 비교하며 서보를 1도씩 움직입니다.   
+
+3. setup
+
+```c
+void setup() {
+  Serial.begin(115200);
+  base.attach(3);
+  base.write(baseAngle);
+  shoulder.attach(5);
+  shoulder.write(shoulderAngle);
+  forearm.attach(6);
+  forearm.write(forearmAngle);
+  upperarm.attach(9);
+  upperarm.write(upperarmAngle);
+
+}
+```
+시리얼 통신을 연결하고 서보 모터를 해당 핀에 연결(`attach`)하고 기본 위치로 설정합니다.
+
+4. loop
+```c
+void loop() {
+      // this value tells when all the joints have reached thier positions
+  while(done == 0){     // Loop until all joints have reached thier positions                      && ready == 1
+    //move the servo to the desired position
+    //This block of code uses "Functions" to make is more condensed.
+    status1 = servoParallelControl(120, base, 20);
+    status2 = servoParallelControl(120, shoulder, 20);
+    status3 = servoParallelControl(120, forearm, 20);
+    status4 = servoParallelControl(120, upperarm, 20);         
+    // Check whether all the joints have reached their positions
+    if (status1 == 1 && status2 == 1 && status3 == 1 && status4 == 1  ){
+      done = 1; //When done =1 then the loop will stop
+    }   
+  }// end of while
+}
+```
+각 관절 서보를 120도로 이동시킵니다.
+모든 서보가 목표 위치에 도달하면 루프를 종료합니다.
+
+### 104_oled_test.ino
+
+SSD1306 128x64 OLED 디스플레이의 기본 기능을 테스트하기 위한 코드로, 텍스트 출력 및 화면 초기화를 반복합니다.   
+
+1. 라이브러리 포함 및 상수 정의
+```c
+#include <U8x8lib.h>  // install U8g2 library
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+```
+OLED 디스플레이 제어를 위해 U8x8lib.h 라이브러리를 사용합니다.   
+디스플레이 크기는 기본 설정(128x64)으로 사용합니다.    
+
+2. 전역 변수 및 객체 생성
+```c
+String upperarm_str = "world";
+
+U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE); 
+```
+`upperarm_str`변수에 world를 저장하여 디스플레이에 출력될 값으로 사용합니다.   
+디스플레이와 I2C 통신을 초기화하기 위해 객체를 생성합니다.
+
+3. clear_oled()
+```c
+void clear_oled(){
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
+  u8x8.drawString(0,0,"                   ");
+  u8x8.drawString(0,1,"                   ");
+  u8x8.drawString(0,2,"                   ");
+  u8x8.drawString(0,3,"                   ");
+  delay(100);
+}
+```
+OLED 화면을 지우는 함수로, 이전에 출력된 문자열을 공백 문자열로 덮어씁니다.
+
+4. setup
+```c
+void setup() {
+  Serial.begin(115200);
+  u8x8.begin();
+  clear_oled();
+}
+```
+시리얼 통신을 초기화하고 OLED 디스플레이를 시작하고 화면을 초기화합니다.
+
+5. loop
+```c
+void loop() {
+  clear_oled();
+  delay(1000);
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
+  u8x8.drawString(0,0,"hello world");
+  u8x8.drawString(0,1,upperarm_str.c_str());
+  delay(1000);
+
+}
+```
+화면 초기화 후 첫번째 줄에 `hello world`, 두번째 줄에 `upperarm_str` 변수의 값을 출력하는 것을 반복합니다.
+
+### 105_abcd_string_robot_control.ino
