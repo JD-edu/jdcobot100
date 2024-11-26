@@ -20,8 +20,8 @@ import time
 # 시리얼 통신 설정
 ser = serial.Serial('COM37', 115200, timeout=1)  # COM 포트 및 보레이트 설정
 ```
-    `com37`: 아두이노가 연결된 포트
-    `115200`: 통신 속도 설정   
+`com37`: 아두이노가 연결된 포트
+`115200`: 통신 속도 설정   
 
 2. GUI 초기 설정
 ```c
@@ -40,9 +40,9 @@ canvas.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=20, pady=20)  # 여백
 frame = tk.Frame(canvas)
 canvas.create_window((0, 0), window=frame, anchor='nw')  # 캔버스에 프레임 추가
 ```
-    tkinter를 이용해 GUI를 설정합니다.
-    `canvas`: 스크롤 가능 영역을 담당
-    `frame`: GUI 요소를 담는 컨테이너   
+tkinter를 이용해 GUI를 설정합니다.
+`canvas`: 스크롤 가능 영역을 담당
+`frame`: GUI 요소를 담는 컨테이너   
 
 3. 각도 설정 및 전송 함수
 ```c
@@ -56,7 +56,7 @@ def set_angles():
     angles = "2a" + str(base_angle) + "b" + str(shoulder_angle) + "c" + str(upperarm_angle) + "d" + str(forearm_angle) + "e\n"
     ser.write(angles.encode())  # 문자열을 바이트로 변환하여 시리얼 통신으로 전송
 ```
-    슬라이더에서 입력받은 각도를 조합해 문자열로 변환 후, 시리얼 통신으로 아두이노에서 전송합니다.   
+슬라이더에서 입력받은 각도를 조합해 문자열로 변환 후, 시리얼 통신으로 아두이노에서 전송합니다.   
 
 4. 동작 기록 및 실행
 ```c
@@ -83,8 +83,8 @@ def execute_actions():
         ser.write(angles.encode())
         time.sleep(3)
 ```
-    `record_action`: 현재 각도 저장
-    `execute_actions`: 저장된 동작을 순차적으로 실행하며, 각 동작마다 3초 대기   
+`record_action`: 현재 각도 저장
+`execute_actions`: 저장된 동작을 순차적으로 실행하며, 각 동작마다 3초 대기   
 
 5. 동작 리스트 업데이트
 ```c
@@ -102,8 +102,8 @@ def show_selected_action(evt):
         base_angle, shoulder_angle, upperarm_angle, forearm_angle = recorded_actions[selected_index]
         selected_action_label.config(text=f"Base: {base_angle}, Shoulder: {shoulder_angle}, Upperarm: {upperarm_angle}, Forearm: {forearm_angle}")
 ```
-    `update_action_list`: 동작 리스트를 리스트박스에 표시
-    `show_selected_action`: 선택된 동작의 세부 정보를 표시   
+`update_action_list`: 동작 리스트를 리스트박스에 표시
+`show_selected_action`: 선택된 동작의 세부 정보를 표시   
 
 6. GUI 구성 요소
 ```c
@@ -141,7 +141,7 @@ record_button.grid(row=5, columnspan=2)  # 그리드 배치
 execute_button = tk.Button(frame, text="Execute Actions", command=execute_actions)  # 동작 실행 버튼
 execute_button.grid(row=6, columnspan=2)  # 그리드 배치
 ```
-    슬라이더를 통해 각 관절의 각도를 설정할 수 있도록 버튼 배치   
+슬라이더를 통해 각 관절의 각도를 설정할 수 있도록 버튼 배치   
 
 7. 동작 리스트 박스와 선택된 동작 표시
 ```c
@@ -154,7 +154,7 @@ action_listbox.bind('<<ListboxSelect>>', show_selected_action)
 selected_action_label = tk.Label(frame, text="")
 selected_action_label.grid(row=8, columnspan=2)
 ```
-    기록된 로봇 팔 동작을 리스트박스에 표시하고, 선택한 동작의 세부 정보를 레이블에 보여줍니다.   
+기록된 로봇 팔 동작을 리스트박스에 표시하고, 선택한 동작의 세부 정보를 레이블에 보여줍니다.   
 
 8. 스크롤바와 메인 루프
 ```c
@@ -171,7 +171,7 @@ canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('
 
 root.mainloop()  # GUI 루프 실행
 ```
-    스크롤바와 GUI를 최종 실행합니다.
+스크롤바와 GUI를 최종 실행합니다.
 
 #### ttk_sequence_robot_move_2.py
    
@@ -183,8 +183,8 @@ import tkinter as tk
 from tkinter import ttk
 import serial
 ```
-   `tkinter`: GUI 구성
-   `serial`: 로봇암과 시리얼 통신   
+`tkinter`: GUI 구성
+`serial`: 로봇암과 시리얼 통신   
 
 ```c
 seq = serial.Serial(
@@ -199,8 +199,8 @@ seq = serial.Serial(
 seq.port = "COM37"
 seq.open()
 ```
-    시리얼 통신 초기화
-    `com37` 포트 사용, 통신 속도 `115200`으로 설정   
+시리얼 통신 초기화
+`com37` 포트 사용, 통신 속도 `115200`으로 설정   
 
 2. GUI 초기화 및 윈도우 설정
 ```c
@@ -208,8 +208,8 @@ root = tk.Tk()
 root.title('KG-KAIROS Robot Control')
 root.geometry('600x480')
 ```
-    tkinter를 사용하여 메인 윈도우를 생성   
-    제목`title` 및 크기`geometry`를 설정합니다.   
+tkinter를 사용하여 메인 윈도우를 생성   
+제목`title` 및 크기`geometry`를 설정합니다.   
 
 3. 슬라이더와 입력 창을 통한 각도 설정
 ```c
@@ -234,8 +234,8 @@ port2.insert('end','80')
 port3.insert('end','80')
 port4.insert('end','80')
 ```
-    기본값은 90으로 초기화합니다.   
-    각 관절의 각도를 나타내는 입력창을 생성합니다.   
+기본값은 90으로 초기화합니다.   
+각 관절의 각도를 나타내는 입력창을 생성합니다.   
 
 4. 슬라이더 값 변경 처리
 ```c
@@ -255,9 +255,9 @@ def slide_handler_base(event):
     port4.delete(0, 'end')
     port4.insert(0, str(int(angle_3)))
 ```
-    슬라이더 값이 변경되는 것을 처리하기 위한 함수입니다.   
-    슬라이더 값 변경 시 입력창에 실시간으로 업데이트됩니다.   
-    현재 각도 값이 출력되어 디버깅에도 활용할 수 있습니다.   
+슬라이더 값이 변경되는 것을 처리하기 위한 함수입니다.   
+슬라이더 값 변경 시 입력창에 실시간으로 업데이트됩니다.   
+현재 각도 값이 출력되어 디버깅에도 활용할 수 있습니다.   
 
 5. 로봇암 동작 및 초기화 함수
 ```c
@@ -269,7 +269,7 @@ def move_robot():
     print("robot move")
     seq.write(("2a" + str(angle_0) + "b" + str(angle_1) + "c" + str(angle_2) + "d" + str(angle_3) + "e" + "\n").encode())
 ```
-    설정된 각도를 시리얼 통신으로 전송하여 로봇암을 제어합니다.   
+설정된 각도를 시리얼 통신으로 전송하여 로봇암을 제어합니다.   
     
 ```c
 def reset_robot():
@@ -296,7 +296,7 @@ def reset_robot():
     m_slide_2_track.set(angle_2)
     m_slide_3_track.set(angle_3)
 ```
-   로봇 암을 초기 상태로 복원하며, 슬라이더와 입력창 값도 초기화됩니다   
+로봇 암을 초기 상태로 복원하며, 슬라이더와 입력창 값도 초기화됩니다   
 
 6. GUI 버튼 및 슬라이더 생성
 ```c
@@ -309,8 +309,8 @@ robot_move_btn.pack(side='left',padx=10)
 robot_reset_btn = ttk.Button(m_robot_reset_btn, text="reset robot", command=reset_robot)
 robot_reset_btn.pack(side='left',padx=10)
 ```
-    `Move Robot`: 설정된 각도로 로봇을 움직이는 버튼   
-    `Reset Robot`: 로봇과 GUI를 초기 상태로 복원하는 버튼   
+`Move Robot`: 설정된 각도로 로봇을 움직이는 버튼   
+`Reset Robot`: 로봇과 GUI를 초기 상태로 복원하는 버튼   
 
 ```c
 m_slide_0 = ttk.Frame(root)  
@@ -333,7 +333,7 @@ m_slide_3_track = ttk.Scale(m_slide_3, length = 200,  from_= 0, to = 180, orient
 m_slide_3_track.set(angle_3)
 m_slide_3_track.pack(side='left',padx=0,pady=5)
 ```
-    관절 각도를 조정하기 위한 슬라이더 배치   
+관절 각도를 조정하기 위한 슬라이더 배치   
 7. GUI 레이아웃 배치 및 실행
 ```c
 m_robot_move_btn.grid(column=1,row=0,columnspan=3,padx=10,pady=10,sticky='w')
@@ -349,12 +349,12 @@ m_slide_3.grid(column=4,row=6,padx=15,pady=5,sticky='w')
 
 root.mainloop()
 ```
-    버튼과 슬라이더를 그리드 레이아웃에 배치   
-    `root.mainloop()`로 GUI 실행   
+버튼과 슬라이더를 그리드 레이아웃에 배치   
+`root.mainloop()`로 GUI 실행   
 
 #### ttk_sequence_robot_move_3.py
    
-코드설명   
+로봇 팔의 관절 각도를 설정하고 저장된 위치를 불러와 효율적으로 제어합니다.   
 
 1. 라이브러리 불러오기 및 시리얼 통신 설정
 ```c
@@ -372,7 +372,7 @@ ser = serial.Serial(
     timeout=1
 )
 ```
-    포트`com37`, 보드 레이트`115200`로 시리얼 통신 설정   
-    `tkinter`로 GUI 구현   
+포트`com37`, 보드 레이트`115200`로 시리얼 통신 설정   
+`tkinter`로 GUI 구현   
 
 2. 
