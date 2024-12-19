@@ -96,10 +96,6 @@ position_listbox.pack(side='left')
 position_listbox_frame.grid(column=0, row=18, columnspan=2, pady=10, padx=10, sticky='w')
 
 
-m_robot_reset_btn = ttk.Frame(root)
-robot_reset_btn = ttk.Button(m_robot_reset_btn, text="Reset Robot", command=reset_robot)
-robot_reset_btn.pack(side='left', padx=10)
-
 slider_labels = ['BASE', 'SHOULDER', 'ELBOW', 'GRIPPER']
 slider_vars = [tk.IntVar() for _ in slider_labels]
 slider_entries = [None] * len(slider_labels)
@@ -122,6 +118,10 @@ for i, label in enumerate(slider_labels):
     update_cmd = lambda event, slider_var=slider_vars[i], entry_var=slider_entries[i]: update_slider_from_entry(entry_var, slider_var)
     slider_entries[i].bind("<FocusOut>", update_cmd)
 
+
+m_robot_reset_btn = ttk.Frame(root)
+robot_reset_btn = ttk.Button(m_robot_reset_btn, text="Reset Robot", command=reset_robot)
+robot_reset_btn.pack(side='left', padx=10)
 m_robot_reset_btn.grid(column=4, row=8, pady=10, sticky='w')
 
 move_button = ttk.Button(root, text="Move Robot", command=lambda: move_robot(
