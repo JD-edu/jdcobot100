@@ -1,9 +1,16 @@
 # jdcobot100 파이썬 코드 설명
 ## 목차
 < [Robot_sequence_move](#robot_sequence_move) >   
-[ttk_sequence_robot_move_1.py](#ttk_sequence_robot_move_1py) GUI로 제어하기 - 슬라이더를 통한 실시간 제어 및 동작 리스트 기록    
-[ttk_sequence_robot_move_2.py](#ttk_sequence_robot_move_2py) GUI로 제어하기 - 버튼을 통한 슬라이더 값 전송 및 초기화   
-[ttk_sequence_robot_move_3.py](#ttk_sequence_robot_move_3py) GUI로 제어하기 - 슬라이더 제어, 포지션 저장/불러오기
+[GUI로 제어하기 - 슬라이더를 통한 실시간 제어 및 동작 리스트 기록(ttk_sequence_robot_move_1.py)](#ttk_sequence_robot_move_1py)    
+[GUI로 제어하기 - 버튼을 통한 슬라이더 값 전송 및 초기화(ttk_sequence_robot_move_2.py)](#ttk_sequence_robot_move_2py)    
+[GUI로 제어하기 - 슬라이더 제어, 포지션 저장/불러오기(ttk_sequence_robot_move_3.py)](#ttk_sequence_robot_move_3py)    
+   
+< [Robot_UI_control_study](#robot_ui_control_study) >   
+[드롭다운 메뉴 생성(tk1_drop_down_serial_port.py)](#tk1_drop_down_serial_portpy)     
+[시리얼 통신 시작/중지 추가(tk2_add_btn_fram.py)](#tk2_add_btn_frampy)   
+[레이아웃 변경(tk3_add_grid.py)](#tk3_add_grid.py)   
+[슬라이더 및 사용자 입력 추가(tk4_add_servo_value.py)](#tk4_add_servo_value.py)   
+
 
 ## Robot_sequence_move
 ### ttk_sequence_robot_move_1.py
@@ -394,7 +401,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
         command = f"2a{a_value}b{b_value}c{c_value}d{d_value}e\n"
         ser.write(command.encode())
     ```
-    시리얼에 `2a{BASE}b{SHOULDER}c{ELBOW}d{GRIPPER}e\n` 형식으로 명령을 전달하여 로봇 관절의 각도를 변경하는 함수   
+    시리얼에 `2a{BASE}b{SHOULDER}c{ELBOW}d{GRIPPER}e\n` 형식으로 명령을 전달하여 로봇 관절의 각도를 변경하는 함수입니다.   
 
 4. update_slider_from_entry()
     ```python
@@ -416,8 +423,8 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
             f.write(",".join(map(str, positions)) + "\n")
         update_position_listbox()
     ```
-    현재 슬라이더의 값을 `robot_positions.txt`에 저장하고 리스트박스를 업데이트하기 위한 함수입니다.   
-    `robot_positions.txt`내에 슬라이더의 값(포지션)이 BASE, SHOULDER, ELBOW, GRIPPER 순으로 저장됩니다.   
+    현재 동작의 값을 `robot_positions.txt`에 저장하고 리스트박스를 업데이트하기 위한 함수입니다.   
+    `robot_positions.txt`내에 현재 동작의 슬라이더의 값을 BASE, SHOULDER, ELBOW, GRIPPER 순으로 저장합니다.
 
 6. load_positions()
     ```python
@@ -436,7 +443,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
         except FileNotFoundError:
             print("No saved positions found.")
     ```
-    선택한 포지션 데이터를 `robot_positions.txt`파일에서 읽어와 슬라이더와 입력창에 반영하는 함수입니다.   
+    선택한 동작 데터를 `robot_positions.txt`파일에서 읽어와 슬라이더와 입력창에 반영하는 함수입니다.   
     파일이 없거나 잘못된 선택을 할 경우 에러 메시지를 출력합니다.
 
 7. update_position_listbox()
@@ -451,7 +458,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
         except FileNotFoundError:
             print("No saved positions found.")
     ```
-    저장된 포지션 리스트를 GUI의 리스트박스에 추가하기 위한 함수입니다.
+    저장된 동작 리스트를 GUI의 리스트박스에 추가하기 위한 함수입니다.
 
 8. GUI 초기화 및 구성
     ```python
@@ -469,7 +476,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     position_listbox.pack(side='left')
     position_listbox_frame.grid(column=0, row=18, columnspan=2, pady=10, padx=10, sticky='w')
     ```
-    포지션 목록을 표시할 리스트박스를 생성하고 레이아웃을 배치합니다.   
+    동작 리스트를 표시할 리스트박스를 생성하고 레이아웃을 배치합니다.   
     
     ```python
     slider_labels = ['BASE', 'SHOULDER', 'ELBOW', 'GRIPPER']
@@ -537,4 +544,240 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     ```python
     root.mainloop()
     ```   
-    Tkinter GUI 루프를 실행합니다.
+    Tkinter GUI 루프를 실행합니다.   
+
+
+## Robot_UI_control_study
+### tk1_drop_down_serial_port.py
+   
+`serial_list` 기반으로 드롭다운 메뉴를 구성하고, 사용자가 드롭다운 메뉴에서 옵션을 선택하면 `uga` 함수를 호출하는 코드입니다.   
+시리얼 포트 탐지와 uga 함수 구현을 통해 시리얼 포트 선택 시 구체적인 작업을 수행하도록 설정할 수 있습니다.   
+   
+1. 모듈 가져오기
+    ```python
+    import tkinter as tk
+    from tkinter import ttk
+    ```
+    GUI를 만들기 위한 `tkinter` 모듈과 `ttk` 서브 모듈을 사용합니다.   
+
+2. uga()
+    ```python
+    def uga():
+        pass
+    ```
+    드롭다운 메뉴 선택이 변경되었을 때 호출하기 위한 빈 함수입니다.   
+
+3. 시리얼 포트 리스트 초기화
+    ```python
+    serial_list = ['시리얼 포트를 선택하세요.']
+    ```
+    `serial_list`: 드롭다운 메뉴에 표시될 옵션 목록으로, `시리얼 포트를 선택하세요`옵션을 기본으로 포함하고 있습니다. 나중에 이 리스트에 실제 시리얼 포트 목록이 추가됩니다.   
+
+4. Tkinter 루트 윈도우 설정
+    ```python
+    root = tk.Tk()
+    root.title('JDcobot 100 Control')
+    root.geometry('600x480')
+    ```
+    제목 `JDcobot 100 control`, 창 크기 600 x 480인 메인 윈도우를 생성합니다.   
+
+5. Frame 생성 및 레이아웃 설정
+    ```python
+    m_serial_select = ttk.Frame(root)
+    var = tk.StringVar()
+    m_serial_select.pack()
+    ```
+    `ttk.Frame(root)`: Tkinter의 프레임 위젯을 생성, 시리얼 포트 드롭다운 메뉴를 포함할 컨테이너 역할을 합니다.   
+    `var = tk.StringVar()`: 드롭다운 메뉴의 현재 선택된 값을 저장하기 위한 변수입니다.   
+    `.pack()`: 드롭다운 메뉴를 프레임에 배치합니다.
+
+6. 드롭다운 메뉴 생성 및 루프 실행
+    ```python
+    dropdown = ttk.OptionMenu(m_serial_select, var, serial_list[0], *serial_list, command = uga)
+    dropdown.pack()
+    dropdown.configure(state='normal')
+
+
+    root.mainloop()
+    ```
+    `m_serial_select`: 드롭다운 메뉴가 포함될 부모 컨테이너(프레임)입니다.   
+    `var`: 드롭다운 메뉴의 선택된 값을 저장할 변수입니다.   
+    `serial_list[0]`: 드롭다운 메뉴의 초기 표시값으로, "시리얼 포트를 선택하세요."가 설정됩니다.   
+    `*serial_list`: serial_list의 각 항목을 드롭다운 옵션으로 설정합니다.    Python의 unpacking 연산자(*)를 사용해 리스트를 개별 항목으로 변환합니다.   
+    `command = uga`: 사용자가 드롭다운 메뉴에서 항목을 선택할 때 호출되는 콜백 함수입니다.   
+    
+    `dropdown.configure(state='normal')`: 드롭다운 메뉴를 활성화 상태로 설정합니다.   
+    비활성화를 하려면 `disable`로 설정합니다.   
+       
+    `root.mainloop()`: Tkinter GUI 루프를 실행합니다.   
+
+### tk2_add_btn_fram.py
+   
+시리얼 포트를 선택하고, 시리얼 통신을 시작하거나 중지하는 기능을 구현하기 위한 코드입니다.   
+시리얼 포트 탐지와 함수 구현을 통해 기능을 설정할 수 있습니다.
+   
+1. 모듈 가져오기
+    ```python
+    import tkinter as tk
+    from tkinter import ttk
+    ```
+    GUI를 만들기 위한 `tkinter` 모듈과 `ttk` 서브 모듈을 사용합니다.   
+
+2. 함수 정의
+    ```python
+    def select_serial():
+        pass
+
+    def start_serial():
+        pass
+
+    def stop_serial():
+        pass
+    ```
+    `select_serial`, `start_serial`, `stop_serial`: 각각 시리얼 포트 선택, 시작, 정지를 처리하기 위한 자리 표시 함수입니다.   
+    현재는 pass로 구현되어 있어 아무 동작도 수행하지 않는 상태입니다.   
+
+3. 시리얼 포트 리스트 초기화
+    ```python
+    serial_list = ['시리얼 포트를 선택하세요.']
+    ```
+    `serial_list`: 드롭다운 메뉴에 표시될 옵션 목록으로, `시리얼 포트를 선택하세요`옵션을 기본으로 포함하고 있습니다. 나중에 이 리스트에 실제 시리얼 포트 목록이 추가됩니다.   
+
+4. Tkinter 루트 윈도우 설정
+    ```python
+    root = tk.Tk()
+    root.title('JDcobot 100 Control')
+    root.geometry('600x480')
+    ```
+    제목 `JDcobot 100 control`, 창 크기 600 x 480인 메인 윈도우를 생성합니다.   
+
+5. Frame 생성 및 레이아웃 설정
+    ```python
+    m_serial_select = ttk.Frame(root)
+    var = tk.StringVar()
+    m_serial_select.pack()
+    ```
+    `ttk.Frame(root)`: Tkinter의 프레임 위젯을 생성, 시리얼 포트 드롭다운 메뉴를 포함할 컨테이너 역할을 합니다.   
+    `var = tk.StringVar()`: 드롭다운 메뉴의 현재 선택된 값을 저장하기 위한 변수입니다.   
+    `.pack()`: 드롭다운 메뉴를 프레임에 배치합니다.
+
+6. 드롭다운 메뉴 생성 및 루프 실행
+    ```python
+    dropdown = ttk.OptionMenu(m_serial_select, var, serial_list[0], *serial_list, command = select_serial)
+    dropdown.pack()
+    dropdown.configure(state='normal')
+    ```
+    `m_serial_select`: 드롭다운 메뉴가 포함될 부모 컨테이너(프레임)입니다.   
+    `var`: 드롭다운 메뉴의 선택된 값을 저장할 변수입니다.   
+    `serial_list[0]`: 드롭다운 메뉴의 초기 표시값으로, "시리얼 포트를 선택하세요."가 설정됩니다.   
+    `*serial_list`: serial_list의 각 항목을 드롭다운 옵션으로 설정합니다.    Python의 unpacking 연산자(*)를 사용해 리스트를 개별 항목으로 변환합니다.   
+    `command = select_serial`: 사용자가 드롭다운 메뉴에서 항목을 선택할 때 호출되는 콜백 함수입니다.   
+    
+    `dropdown.configure(state='normal')`: 드롭다운 메뉴를 활성화 상태로 설정합니다.   
+    비활성화를 하려면 `disable`로 설정합니다.   
+
+
+7. 버튼 프레임 및 버튼 생성
+    ```python
+    m_serial_start_btn = ttk.Frame(root)
+    m_serial_stop_btn = ttk.Frame(root)
+
+    start_serial_btn = ttk.Button(m_serial_start_btn, text="Start serial", command=start_serial)
+    start_serial_btn.pack(side='left', padx=10)
+
+    stop_serial_btn = ttk.Button(m_serial_stop_btn, text="Stop serial", command=stop_serial)
+    stop_serial_btn.pack(side='left', padx=10)
+    ```
+    두 개의 버튼을 담을 프레임:   
+    `m_serial_start_btn`: `Start serial` 버튼을 담는 프레임을 생성합니다.   
+    `m_serial_stop_btn`: `Stop serial` 버튼을 담는 프레임을 생성합니다.   
+    
+    버튼:   
+    `start_serial_btn`: `Start serial` 텍스트와 클릭 시 호출될 `start_serial` 함수를 연결합니다.   
+    `stop_serial_btn`: `Stop serial` 텍스트와 클릭 시 호출될 `stop_serial` 함수를 연결합니다.   
+    
+    `pack(side='left', padx=10)`: 버튼을 왼쪽 정렬하고 간격(10px)을 추가합니다.   
+
+8. 버튼 초기 상태 비활성화
+    ```python
+    start_serial_btn.configure(state='disable')
+    stop_serial_btn.configure(state='disable')
+    ```
+    `configure(state='disable')`: 두 버튼을 비활성화.   
+    활성화를 원할시 `state='normal'`로 변경합니다.   
+
+9. 프레임 레이아웃 배치 및 메일 루프 실행
+    ```python
+    m_serial_start_btn.pack()
+    m_serial_stop_btn.pack()
+
+    root.mainloop()
+    ```
+    `pack()`: 버튼 프레임을 메인 윈도우에 배치.   
+    `root.mainloop()`: Tkinter GUI 루프를 실행합니다.   
+    
+### tk3_add_grid.py
+   
+`.pack()` 대신 `.grid()`를 사용하여 레이아웃의 유연성을 높입니다.
+
+```python
+# grid layout 
+m_serial_select.grid(column=1,row=0,columnspan=2,padx=10,pady=10,sticky='w')
+m_serial_start_btn.grid(column=1,row=1,padx=10,pady=5,sticky='w')
+m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
+```
+`m_serial_select` 프레임:   
+    `column=1, row=0`: 첫 번째 행, 두 번째 열에 배치.   
+    `columnspan=2`: 두 열을 차지하도록 설정.   
+    `padx=10, pady=10`: 가로/세로 여백 추가.   
+    `sticky='w'`: 왼쪽 정렬.   
+   
+`m_serial_start_btn` 프레임:   
+    `column=1, row=1`: 두 번째 행, 두 번째 열에 배치.   
+    `padx=10, pady=5`: 여백 추가.   
+    `sticky='w'`: 왼쪽 정렬.   
+   
+`m_serial_stop_btn` 프레임:   
+    `column=2, row=1`: 두 번째 행, 세 번째 열에 배치.   
+    `padx=10, pady=5`: 여백 추가.   
+    `sticky='w'`: 왼쪽 정렬.   
+   
+이 외 코드는 '[시리얼 통신 시작/중지 추가(tk2_add_btn_fram.py)](#tk2_add_btn_frampy)'와 동일합니다.   
+
+### tk4_add_servo_value.py
+   
+슬라이더 기능을 위한 UI를 추가하고 `Entry`를 이용해 사용자 입력을 받습니다.   
+   
+```python
+# add slider using frame
+m_link0 = ttk.Frame(root)       # link 0  
+
+link0 = tk.StringVar()
+ttk.Label(m_link0,text='Link 0: ',font='Helvetica 10 bold').pack(side='left')
+port1 = ttk.Entry(m_link0,width=6, textvariable = link0)
+port1.insert('end','80')
+port1.pack(side='left',padx=0,pady=5)
+```
+슬라이더와 관련된 요소를 담은 `m_link0`프레임을 추가합니다.   
+   
+`ttk.Label`을 사용해 `Link 0: ` 텍스트 라벨을 생성합니다.   
+`font='Helvetica 10 bold'`를 통해 굵은 글꼴로 지정합니다.   
+   
+`port1`: 사용자 입력을 받을 수 있는 텍스트 필드(`Entry`)를 추가합니다.   
+`textvariable=link0`: `link0` 변수와 연결하여 입력된 값을 저장하거나 변경 가능합니다.   
+`insert('end', '80')`: 기본값으로 `80`을 입력 필드에 삽입합니다.   
+   
+`side='left'`: 라벨과 입력 필드를 프레임 내에 수평으로 배치합니다.
+
+```python
+m_serial_select.grid(column=1,row=0,columnspan=3,padx=10,pady=10,sticky='w')
+
+m_link0.grid(column=1,row=2,padx=10,pady=5,sticky='w')
+```
+`columnspan=3`: 기존에 2였던 값을 3으로 변경하여 더 넓은 영역을 차지합니다.   
+   
+`m_link0` 프레임:   
+    `row=2`에 추가로 배치합니다.   
+    `padx=10, pady=5`: 프레임의 여백을 설정합니다.   
+    `sticky='w'`: 왼쪽으로 정렬합니다.   
+   
