@@ -1,15 +1,16 @@
 # jdcobot100 파이썬 코드 설명
 ## 목차
 < [Robot_sequence_move](#robot_sequence_move) >   
-[GUI로 제어하기 - 슬라이더를 통한 실시간 제어 및 동작 리스트 기록(ttk_sequence_robot_move_1.py)](#ttk_sequence_robot_move_1py)    
-[GUI로 제어하기 - 버튼을 통한 슬라이더 값 전송 및 초기화(ttk_sequence_robot_move_2.py)](#ttk_sequence_robot_move_2py)    
-[GUI로 제어하기 - 슬라이더 제어, 포지션 저장/불러오기(ttk_sequence_robot_move_3.py)](#ttk_sequence_robot_move_3py)    
+[GUI로 제어하기 - 슬라이더를 통한 실시간 제어 및 동작 리스트 기록 (ttk_sequence_robot_move_1.py)](#ttk_sequence_robot_move_1py)    
+[GUI로 제어하기 - 버튼을 통한 슬라이더 값 전송 및 초기화 (ttk_sequence_robot_move_2.py)](#ttk_sequence_robot_move_2py)    
+[GUI로 제어하기 - 슬라이더 제어, 포지션 저장/불러오기 (ttk_sequence_robot_move_3.py)](#ttk_sequence_robot_move_3py)    
    
 < [Robot_UI_control_study](#robot_ui_control_study) >   
-[드롭다운 메뉴 생성(tk1_drop_down_serial_port.py)](#tk1_drop_down_serial_portpy)     
-[시리얼 통신 시작/중지 추가(tk2_add_btn_fram.py)](#tk2_add_btn_frampy)   
-[레이아웃 변경(tk3_add_grid.py)](#tk3_add_grid.py)   
-[슬라이더 및 사용자 입력 추가(tk4_add_servo_value.py)](#tk4_add_servo_value.py)   
+[드롭다운 메뉴 생성 (tk1_drop_down_serial_port.py)](#tk1_drop_down_serial_portpy)     
+[시리얼 통신 시작/중지 버튼 추가 (tk2_add_btn_fram.py)](#tk2_add_btn_frampy)   
+[레이아웃 변경 (tk3_add_grid.py)](#tk3_add_grid.py)   
+[슬라이더 관련 UI 및 사용자 입력 필드 추가 (tk4_add_servo_value.py)](#tk4_add_servo_value.py)   
+[슬라이더를 통한 입력 제어 추가 (#tk5_add_slider.py)](#tk5_add_sliderpy)
 
 
 ## Robot_sequence_move
@@ -384,7 +385,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     포트`com37`, 보드 레이트`115200`로 시리얼 통신 설정   
     `tkinter`로 GUI 구현   
 
-2. reset_robot()
+2. `reset_robot()`
     ```python
     def reset_robot():
         print("reset")
@@ -394,7 +395,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
    로봇을 기본 위치로 복구하고자 할 때 사용하는 함수입니다.   
    시리얼에 `3\n`을 입력하여 초기화 명령을 전송합니다.   
 
-3. move_robot()
+3. `move_robot()`
     ```python
     def move_robot(a_value, b_value, c_value, d_value):
         print(f"move to A:{a_value} B:{b_value} C:{c_value} D:{d_value}")
@@ -403,7 +404,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     ```
     시리얼에 `2a{BASE}b{SHOULDER}c{ELBOW}d{GRIPPER}e\n` 형식으로 명령을 전달하여 로봇 관절의 각도를 변경하는 함수입니다.   
 
-4. update_slider_from_entry()
+4. `update_slider_from_entry()`
     ```python
     def update_slider_from_entry(entry_var, slider_var):
         try:
@@ -415,7 +416,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     ```
     슬라이더 값과 관절 값을 동기화하기 위한 함수로 값이 0~180 범위를 벗어날 경우 무시합니다.   
 
-5. save_position()
+5. `save_position()`
     ```python
     def save_positions():
         positions = [slider_vars[i].get() for i in range(len(slider_vars))]
@@ -426,7 +427,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     현재 동작의 값을 `robot_positions.txt`에 저장하고 리스트박스를 업데이트하기 위한 함수입니다.   
     `robot_positions.txt`내에 현재 동작의 슬라이더의 값을 BASE, SHOULDER, ELBOW, GRIPPER 순으로 저장합니다.
 
-6. load_positions()
+6. `load_positions()`
     ```python
     def load_positions(selected_position):
         try:
@@ -446,7 +447,7 @@ GUI를 통해 직관적으로 로봇 암의 각도를 설정하고 기록된 동
     선택한 동작 데터를 `robot_positions.txt`파일에서 읽어와 슬라이더와 입력창에 반영하는 함수입니다.   
     파일이 없거나 잘못된 선택을 할 경우 에러 메시지를 출력합니다.
 
-7. update_position_listbox()
+7. `update_position_listbox()`
     ```python
     def update_position_listbox():
         position_listbox.delete(0, tk.END)
@@ -731,53 +732,94 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     `columnspan=2`: 두 열을 차지하도록 설정.   
     `padx=10, pady=10`: 가로/세로 여백 추가.   
     `sticky='w'`: 왼쪽 정렬.   
-   
+
 `m_serial_start_btn` 프레임:   
     `column=1, row=1`: 두 번째 행, 두 번째 열에 배치.   
     `padx=10, pady=5`: 여백 추가.   
     `sticky='w'`: 왼쪽 정렬.   
-   
+
 `m_serial_stop_btn` 프레임:   
     `column=2, row=1`: 두 번째 행, 세 번째 열에 배치.   
     `padx=10, pady=5`: 여백 추가.   
     `sticky='w'`: 왼쪽 정렬.   
-   
+
 이 외 코드는 '[시리얼 통신 시작/중지 추가(tk2_add_btn_fram.py)](#tk2_add_btn_frampy)'와 동일합니다.   
 
 ### tk4_add_servo_value.py
    
-슬라이더 기능을 위한 UI를 추가하고 `Entry`를 이용해 사용자 입력을 받습니다.   
-   
-```python
-# add slider using frame
-m_link0 = ttk.Frame(root)       # link 0  
+`tk3_add_grid.py`에 슬라이더 기능을 위한 UI를 추가하고 `Entry`를 이용해 값을 입력하거나 수정할 수 있게 합니다.   
 
-link0 = tk.StringVar()
-ttk.Label(m_link0,text='Link 0: ',font='Helvetica 10 bold').pack(side='left')
-port1 = ttk.Entry(m_link0,width=6, textvariable = link0)
-port1.insert('end','80')
-port1.pack(side='left',padx=0,pady=5)
-```
-슬라이더와 관련된 요소를 담은 `m_link0`프레임을 추가합니다.   
-   
-`ttk.Label`을 사용해 `Link 0: ` 텍스트 라벨을 생성합니다.   
-`font='Helvetica 10 bold'`를 통해 굵은 글꼴로 지정합니다.   
-   
-`port1`: 사용자 입력을 받을 수 있는 텍스트 필드(`Entry`)를 추가합니다.   
-`textvariable=link0`: `link0` 변수와 연결하여 입력된 값을 저장하거나 변경 가능합니다.   
-`insert('end', '80')`: 기본값으로 `80`을 입력 필드에 삽입합니다.   
-   
-`side='left'`: 라벨과 입력 필드를 프레임 내에 수평으로 배치합니다.
+1. 프레임 생성   
+    ```python
+    # add slider using frame
+    m_link0 = ttk.Frame(root)       # link 0  
 
-```python
-m_serial_select.grid(column=1,row=0,columnspan=3,padx=10,pady=10,sticky='w')
+    link0 = tk.StringVar()
+    ttk.Label(m_link0,text='Link 0: ',font='Helvetica 10 bold').pack(side='left')
+    port1 = ttk.Entry(m_link0,width=6, textvariable = link0)
+    port1.insert('end','80')
+    port1.pack(side='left',padx=0,pady=5)
+    ```
+    슬라이더와 관련된 요소를 담은 `m_link0`프레임을 추가합니다.   
+    
+    `ttk.Label`을 사용해 `Link 0: ` 텍스트 라벨을 생성합니다.   
+    `font='Helvetica 10 bold'`를 통해 굵은 글꼴로 지정합니다.   
+    
+    `port1`: 사용자 입력을 받을 수 있는 텍스트 필드(`Entry`)를 추가합니다.   
+    `textvariable=link0`: `link0` 변수와 연결하여 입력된 값을 저장하거나 변경 가능합니다.   
+    `insert('end', '80')`: 기본값으로 `80`을 입력 필드에 삽입합니다.   
+    
+    `side='left'`: 라벨과 입력 필드를 프레임 내에 수평으로 배치합니다.   
 
-m_link0.grid(column=1,row=2,padx=10,pady=5,sticky='w')
-```
-`columnspan=3`: 기존에 2였던 값을 3으로 변경하여 더 넓은 영역을 차지합니다.   
+2. 레이아웃 변경
+    ```python
+    m_serial_select.grid(column=1,row=0,columnspan=3,padx=10,pady=10,sticky='w')
+
+    m_link0.grid(column=1,row=2,padx=10,pady=5,sticky='w')
+    ```
+    `columnspan=3`: 기존에 2였던 값을 3으로 변경하여 더 넓은 영역을 차지합니다.   
+    
+    `m_link0` 프레임:   
+        `row=2`에 추가로 배치합니다.   
+        `padx=10, pady=5`: 프레임의 여백을 설정합니다.   
+        `sticky='w'`: 왼쪽으로 정렬합니다.   
    
-`m_link0` 프레임:   
-    `row=2`에 추가로 배치합니다.   
-    `padx=10, pady=5`: 프레임의 여백을 설정합니다.   
-    `sticky='w'`: 왼쪽으로 정렬합니다.   
+### tk5_add_slider.py
    
+`tk4_add_servo_value.py`에 슬라이더를 통합 입력 제어를 추가한 코드입니다.   
+   
+1. `slide_handler_0()`
+    ```python
+    def slide_handler_0():
+        pass
+    ```
+    슬라이더 값 변경 시 호출될 함수 `slide_handler_0`을 추가합니다. 현재는 pass로 설정되어 있어 동작하지 않습니다.   
+    
+2. 슬라이더 추가
+    ```python
+    # add slider using 
+    angle_0 = 0
+    m_slide_0 = ttk.Frame(root)  
+    m_slide_0_track = ttk.Scale(m_slide_0, length = 200,  from_= -90, to = 90, orient ="vertical")
+    m_slide_0_track.bind("<ButtonRelease-1>", slide_handler_0)
+    m_slide_0_track.set(angle_0)
+    m_slide_0_track.pack(side='left',padx=0,pady=5)
+    ```
+    슬라이더와 관련된 요소를 담은 `m_slide_0`프레임을 추가합니다.   
+       
+    `ttk.Scale`: 슬라이더의 크기를 지정합니다.
+    * `length = 200`: 슬라이더 길이를 200 픽셀로 설정합니다.   
+    * `from_= -90, to=90`: 슬라이더의 범위를 -90도에서 90도로 설정합니다.   
+    * `orient = "vertical"`: 슬라이더의 방향을 세로로 설정합니다.   
+       
+    `m_slide_0_track.bind`: 슬라이더를 조작할 때 발생할 이벤트를 설정합니다.   
+    * 슬라이더 조작 후 버튼을 놓으면 `slide_handler_0`함수를 호출합니다.   
+       
+    `m_slide_0_track.set(angle_0)`: 슬라이더의 초기값을 `angle_0`으로 설정합니다.   
+    현재 코드에서 `angle_0`은 `0`으로 설정되어 있습니다.   
+       
+3. 레이아웃 변경
+    ```python
+    m_slide_0.grid(column=1,row=6,padx=15,pady=5,sticky='w')
+    ```
+    슬라이더를 `grid`를 통해 배치합니다.
