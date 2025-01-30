@@ -11,7 +11,7 @@
 [레이아웃 변경 (tk3_add_grid.py)](#tk3_add_grid.py)   
 [슬라이더 관련 UI 및 사용자 입력 필드 추가 (tk4_add_servo_value.py)](#tk4_add_servo_value.py)   
 [슬라이더를 통한 입력 제어 추가 (#tk5_add_slider.py)](#tk5_add_sliderpy)
-
+[run, stop 버튼 추가 (tk6_add_robot_run_stop.py)](#tk6_add_robot_run_stoppy)
 
 ## Robot_sequence_move
 ### ttk_sequence_robot_move_1.py
@@ -822,4 +822,130 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     ```python
     m_slide_0.grid(column=1,row=6,padx=15,pady=5,sticky='w')
     ```
-    슬라이더를 `grid`를 통해 배치합니다.
+    슬라이더를 `grid`를 통해 배치합니다.   
+
+### tk6_add_robot_run_stop.py
+   
+`tk5_add_slider.py`에 로봇 동작 실행(run) 및 정지(stop) 버튼을 추가한 코드입니다.   
+
+1. 함수 추가
+   ```python
+    def run_robot():
+        pass
+
+    def stop_robot():
+        pass
+    ```
+    `run robot`, `stop robot` 버튼 클릭 시 실행될 함수를 추가합니다.   
+    현재는 pass로 함수에 동작이 없는 상태입니다.   
+       
+2. 창 크기 변경
+   ```python
+   #root.geometry('600x480')
+   ```
+   창 크기를 `600x480`으로 지정하는 부분을 주석처리하여 창 크기가 사용자의 설정에 따라 자동 조정됩니다.   
+      
+3. 새로운 버튼 추가
+   ```python
+    # add robot run stop button
+    m_robot_run_btn = ttk.Frame(root)
+    m_robot_stop_btn = ttk.Frame(root)
+    robot_run_btn = ttk.Button(m_robot_run_btn, text="run robot", command=run_robot)
+    robot_run_btn.pack(side='left', padx=10)
+    robot_stop_btn = ttk.Button(m_robot_stop_btn, text="stop robot", command=stop_robot)
+    robot_stop_btn.pack(side='left', padx=10)
+   ```
+   `run robot`, `stop robot` 버튼을 추가합니다.   
+      
+4. 새로운 버튼 배치
+   ```python
+    m_robot_run_btn.grid(column=1, row=8,padx=10,pady=5,sticky='w')
+    m_robot_stop_btn.grid(column=2, row=8,padx=10,pady=5,sticky='w')
+   ```
+   두개의 버튼을 화면에 배치합니다.   
+   `run robot`: 8번째 행, 첫번째 열에 배치
+   `stop robot`: 8번째 행, 두번째 열에 배치
+
+### tk7_add_UI_control_study.py
+`tk6_add_robot_run_stop.py`에 슬라이더를 조작해 `angle_0`(base servo)의 값을 변경하고, 이를 시리얼 통신으로 전송하여 로봇암을 제어할 수 있는 기능을 추가한 코드입니다.   
+   
+1. 모듈 추가
+   ```python
+   import serial
+   ```
+   시리얼 통신을 위해 `serial` 모듈을 추가합니다.   
+      
+2. 슬라이더 이벤트 핸들러 변경
+   슬라이더 변경시 호출되는 함수를 `slide_handler_0`에서 `slide_handler_base`로 변경하면서 동작을 추가하였습니다.
+
+   ```python
+    def slide_handler_base(event):
+        global angle_0
+        angle_0 = m_slide_0_track.get()
+        print(angle_0)
+        port1.delete(0, 'end')
+        port1.insert(0, str(int(angle_0)))
+    ```
+    슬라이더 값을 조작하면 angle_0값이 변화합니다.   
+    `angle_0 = m_slide_0_track.get()`: 슬라이더 값(m_slide_0_track.get())을 angle_0에 저장.   
+    `print(angle_0)`: 현재 슬라이더 값을 print(angle_0)로 출력합니다.   
+    입력 필드(port1)를 지우고`port1.delete(0, 'end')`, 새 값을 삽입합니다`port1.insert(0, str(int(angle_0)))`.   
+       
+3. `run_robot()` 함수 변경
+    ```python
+    def run_robot():
+        global angle_0
+        cmd = '2a'+str(int(angle_0))+'b90c90d90e\n'
+        print(cmd)
+        seq.write(cmd.encode())
+        print(cmd.encode())
+    ```
+    버튼 클릭시 시리얼 통신으로 각도 값을 전송합니다. (`angle_0`이 45라면 `2a45b90c90d90e\n`를 전송)   
+    `seq.write(cmd.encode())`: 명령을 JDcobot 100으로 전송.   
+    `print(cmd.encode())`: 전송된 명령을 출력하여 디버깅.
+   
+4. print추가
+   ```python
+   print("started...")
+    angle_0 = 90
+   ```
+   코드를 실행하면 시리얼에 `started...`가 출력됩니다.
+   기본 각도를 90도로 설정합니다.
+
+5. 슬라이더 범위 및 이벤트 바인딩 변경
+   ```python
+    # add slider using base
+
+    m_slide_0 = ttk.Frame(root)  
+    m_slide_0_track = ttk.Scale(m_slide_0, length = 100,  from_= 0, to = 180, orient ="vertical", command=slide_handler_base)
+    m_slide_0_track.set(angle_0)
+    m_slide_0_track.pack(side='left',padx=0,pady=5)
+   ```
+   * 슬라이더 값 범위 변경:   
+     * 기존: `from_=-90, to=90`   
+     * 변경 후: `from_=0, to=180`   
+         
+   * `command=slide_handler_base`:   
+     * 기존: 버튼을 놓을 때만 실행 `bind("<ButtonRelease-1>", ...)`   
+     * 변경 후: 값이 변경될 때마다 `slide_handler_base` 실행.
+
+6. 시리얼 통신 설정
+   ```python
+    # Serial port 
+    seq = serial.Serial(
+                baudrate=115200,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+                timeout=1
+            )
+    ```
+    시리얼 통신 설정:   
+    * 통신 속도 `baudrate=115200`: 초당 115200 비트 전송.   
+    * 패리티 비트 없음 `parity=serial.PARITY_NONE`.   
+    * 스톱비트 1개 `stopbits=serial.STOPBITS_ONE`.   
+    * 데이터 크기 8비트 `bytesize=serial.EIGHTBITS`.   
+    * 1초 타임아웃 `timeout=1`.
+     
+### tk8_add_serial_selector.py
+`tk7_add_base_servo_ctrl.py`에
