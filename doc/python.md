@@ -948,4 +948,85 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     * 1초 타임아웃 `timeout=1`.
      
 ### tk8_add_serial_selector.py
-`tk7_add_base_servo_ctrl.py`에
+`tk7_add_base_servo_ctrl.py`에 멀티스레딩과 포트 자동 검색 기능을 추가하여 사용자 편의를 높인 코드입니다.   
+   
+1. 필요한 모듈 추가
+    ```python
+    import threading 
+    import sys 
+    import glob
+    ```
+    시리얼 포트 자동 연결을 위해 필요한 모듈 추가   
+    `threading`: 백그라운드에서 시리얼 포트 검색을 주기적으로 실행하기 위해 사용   
+    `sys`: 운영 체제(OS)를 확인하기 위해 사용   
+    `glob`: Linux 및 macOS에서 시리얼 포트를 찾기 위해 사용   
+       
+2. `start_serial()`함수 기능 추가
+   ```python
+    def start_serial():
+        global seq
+        print("test-1")
+        seq.port = "COM4"
+        seq.open()
+    ```
+    
+3. dddd
+   ```python
+    def update_option_menu():
+        global dropdown
+        global serial_list
+        menu = dropdown["menu"]
+        menu.delete(0, "end")
+        for string in serial_list:
+            print("uga")
+            menu.add_command(label=string, command=lambda value=string: var.set(value))
+
+
+    def startTimer(iTimeSec,isRepeated):
+        timer_thread1 = threading.Timer(iTimeSec, timerCallBack,[iTimeSec,isRepeated])
+        timer_thread1.daemon = True
+        timer_thread1.start()
+
+    serial_list =None
+    def timerCallBack(iTimeSec,isRepeated):
+        global serial_list
+        print("start timer")
+        result = serial_ports()
+        serial_list = result
+        print(serial_list)
+        update_option_menu()
+        start_serial_btn.configure(state='enable')
+        stop_serial_btn.configure(state='enable')
+        dropdown.configure(state='enable')
+        if isRepeated == True :
+            timer_thread1 = threading.Timer(iTimeSec,timerCallBack,[iTimeSec,isRepeated])
+            timer_thread1.daemon = True
+            timer_thread1.start()
+
+    def serial_ports():   
+        if sys.platform.startswith('win'):   
+            ports = ['COM%s' % (i + 1) for i in range(256)]   
+        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):   
+            # this excludes your current terminal "/dev/tty"   
+            ports = glob.glob('/dev/tty[A-Za-z]*')   
+        elif sys.platform.startswith('darwin'):   
+            ports = glob.glob('/dev/tty.*')   
+        else:   
+            raise EnvironmentError('Unsupported platform')   
+        
+        result = []   
+        for port in ports:   
+            try:   
+                s = serial.Serial(port)   
+                s.close()   
+                result.append(port)
+            except (OSError, serial.SerialException):   
+                pass   
+        return result  
+    ```
+4. serial port select
+   ```python
+    startTimer(1, False)
+    serial_list = ['시리얼 포트를 선택하세요.']
+    ```
+   
