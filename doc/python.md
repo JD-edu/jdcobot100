@@ -12,6 +12,9 @@
 [슬라이더 관련 UI 및 사용자 입력 필드 추가 (tk4_add_servo_value.py)](#tk4_add_servo_value.py)   
 [슬라이더를 통한 입력 제어 추가 (#tk5_add_slider.py)](#tk5_add_sliderpy)
 [run, stop 버튼 추가 (tk6_add_robot_run_stop.py)](#tk6_add_robot_run_stoppy)
+[슬라이더를 통한 angle_0값 변경 및 시리얼 전송 기능 추가(tk7_add_base_servo_ctrl.py)](#tk7_add_base_servo_ctrlpy)
+[멀티스레딩 및 시리얼 포트 검색 추가(tk8_add_serial_seletor.py)](#tk8_add_serial_selectorpy)
+
 
 ## Robot_sequence_move
 ### ttk_sequence_robot_move_1.py
@@ -866,7 +869,7 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
    `run robot`: 8번째 행, 첫번째 열에 배치
    `stop robot`: 8번째 행, 두번째 열에 배치
 
-### tk7_add_UI_control_study.py
+### tk7_add_base_servo_ctrl.py
 `tk6_add_robot_run_stop.py`에 슬라이더를 조작해 `angle_0`(base servo)의 값을 변경하고, 이를 시리얼 통신으로 전송하여 로봇암을 제어할 수 있는 기능을 추가한 코드입니다.   
    
 1. 모듈 추가
@@ -948,7 +951,7 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     * 1초 타임아웃 `timeout=1`.
      
 ### tk8_add_serial_selector.py
-`tk7_add_base_servo_ctrl.py`에 멀티스레딩과 포트 자동 검색 기능을 추가하여 사용자 편의를 높인 코드입니다.   
+`tk7_add_base_servo_ctrl.py`에 멀티스레딩과 포트 자동 검색 기능을 추가한 코드입니다.   
    
 1. 필요한 모듈 추가
     ```python
@@ -969,8 +972,15 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
         seq.port = "COM4"
         seq.open()
     ```
+    * `global seq`: 시리얼 통신 객체(`serial.Serial`)로, 전역 변수로 사용됨
+    함수를 실행하면 jdcobot100과 연결된 시리얼 포트를 열어 통신을 시작합니다.
+    * `print("test-1")`: `test-1`을 출력하여 시리얼 연결 과정이 시작된 것을 확인할 수 있습니다.
+    * `seq.port = "COM4"`: 시리얼 포트를 `COM4`로 설정합니다.
+    COM4는 예시로 사용한 포트로 실제 사용 환경에 따라 변경될 수 있습니다.
+    * `seq.open()`: 설정한 포트(COM4)를 연결합니다.
+
     
-3. dddd
+3. `update_option_menu()`
    ```python
     def update_option_menu():
         global dropdown
@@ -980,14 +990,28 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
         for string in serial_list:
             print("uga")
             menu.add_command(label=string, command=lambda value=string: var.set(value))
-
-
+    ```
+    시리얼 포트 목록 (`serial_list`)를 드롭다운 메뉴(`dropdown["menu"]`)에 실시간 반영하는 함수입니다.   
+    * `menu.delete(0, "end")`: 기존 옵션 삭제   
+    * `print("uga")`: 디버깅을 위해 화면에 ``Uga"`를 출력합니다.   
+    * `menu.add_command(label=string, command=lambda value=string: var.set(value))`: 새로운 시리얼 포트를 드롭다운 옵션에 추가하여 사용자가 선택 가능하도록 합니다.   
+     
+4. `startTimer()`
+    ```python
     def startTimer(iTimeSec,isRepeated):
         timer_thread1 = threading.Timer(iTimeSec, timerCallBack,[iTimeSec,isRepeated])
         timer_thread1.daemon = True
         timer_thread1.start()
-
+    ```
+    백그라운드 타이머를 시작하는 함수입니다.
+    * `iTimeSec`초가 지날 때마다 `timerCallBack()`을 실행하는 타이머를 생성합니다.
+    * `isRepeated = True`일 경우 타이머가 반복 실행됩니다.
+    * `daemon = True`로 설정하여 백그라운드에서 실행됩니다.
+   
+5. `timerCallBack()`
+   ```python
     serial_list =None
+
     def timerCallBack(iTimeSec,isRepeated):
         global serial_list
         print("start timer")
@@ -1002,7 +1026,16 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
             timer_thread1 = threading.Timer(iTimeSec,timerCallBack,[iTimeSec,isRepeated])
             timer_thread1.daemon = True
             timer_thread1.start()
-
+    ```
+    타이머 실행 시 시리얼 포트 목록을 갱신합니다.
+    * `result = serial_ports()`:` 사용 가능한 시리얼 포트 목록을 검색.
+    * `serial_list = result`: `serial_list`에 새로운 시리얼 포트 목록을 저장.
+    * `update_option_menu()`를 실행하여 UI의 드롭다운 메뉴를 업데이트.
+    * `Start serial`, `Stop serial` 버튼과 드롭다운 메뉴를 활성화 (`configure(state='enable')`).
+    * `isRepeated=True`이면 `timerCallBack()`을 반복 실행하여 지속적으로 포트 목록을 갱신.
+       
+6. `serial_ports()`
+    ```python
     def serial_ports():   
         if sys.platform.startswith('win'):   
             ports = ['COM%s' % (i + 1) for i in range(256)]   
@@ -1024,9 +1057,26 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
                 pass   
         return result  
     ```
-4. serial port select
+    운영 체제별 시리얼 포트를 검색합니다.   
+
+    * 운영 체제(OS)에 맞는 방식으로 시리얼 포트 목록을 가져옵니다:
+      * Windows (win): `COM1`~`COM256`까지 확인.
+      * Linux (linux, cygwin): `/dev/tty*` 경로에서 포트 검색.
+      * macOS (darwin): `/dev/tty.*` 경로에서 포트 검색.
+      * 지원되지 않는 플랫폼일 경우 오류 발생 (`raise EnvironmentError('Unsupported platform')`).
+    * 포트가 실제로 사용 가능한지 확인합니다.:
+      * `serial.Serial(port)`로 포트를 열었다가 닫고, 사용 가능한 포트만 `result` 리스트에 추가.
+      * 이미 사용 중이거나 연결할 수 없는 포트는 자동으로 제외됩니다. (`except (OSError, serial.SerialException): pass`).   
+  
+7. 코드 실행 시 타이머 실행 및 기본 드롭다운 메뉴 설정
    ```python
     startTimer(1, False)
     serial_list = ['시리얼 포트를 선택하세요.']
     ```
+    * `startTimer(1, False)`
+      * 코드 실행 1초 후 `timerCallBack()`을 실행하여 시리얼 포트 목록 검색합니다.
+      * `False`이므로 반복없이 한 번만 실행
+    * `serial_list = ['시리얼 포트를 선택하세요.']`
+      * 코드 실행 직후 초기 드롭다운 메뉴로 `시리얼 포트를 선택하세요.`를 표시합니다.
+
    
