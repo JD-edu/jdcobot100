@@ -1079,4 +1079,128 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     * `serial_list = ['시리얼 포트를 선택하세요.']`
       * 코드 실행 직후 초기 드롭다운 메뉴로 `시리얼 포트를 선택하세요.`를 표시합니다.
 
+### tk9_add_slider_all.py
+`tk8_add_serial_seletor.py`에   
    
+1. `select_serial()`
+   ```python
+   def select_serial():
+    selected_port = var.get()
+    print(selected_port)
+    ```
+    사용자가 드롭다운 메뉴에서 포트를 선택하면 이를 출력하도록 함수의 기능을 추가하였습니다.   
+       
+2. `start_serial()`
+   ```python
+   def start_serial():
+    seq.port = var.get()
+    seq.open()
+    print("serial port opened:", seq.port)
+    ```
+    
+
+3. `stop_serial()`
+   ```python
+   def stop_serial():
+    seq.close()
+    print("serial port stopped:", seq.port)
+    ```
+
+4. `slide_handler_base()`
+   ```python
+   def slide_handler_base(event, idx):
+    global angles
+    angles[idx] = slides[idx].get()
+    print(angles[idx])
+    entry_boxes[idx].delete(0, 'end')
+    entry_boxes[idx].insert(0, str(int(angles[idx])))
+    ```
+
+5. `run_robot()`
+   ```python
+   def run_robot():
+    global angles
+    cmd = '2a'+str(int(angles[0]))+'b'+str(int(angles[1]))+'c'+str(int(angles[2]))+'d'+str(int(angles[3]))+'e'+str(int(angles[4]))+'f\n'
+    print(cmd)
+    seq.write(cmd.encode())
+    print(cmd.encode())
+   ```
+
+6. `stop_robot()`
+   ```python
+   def stop_robot():
+    cmd = '1abcdef'
+    seq.write(cmd.encode())
+    while True:
+        if seq.in_waiting > 0:
+            data = seq.readline().decode('utf-8').strip()
+            for i in range(slide_num):
+                angles[i] = data[data.find(chr(97+i))+1:data.find(chr(98+i))]
+                entry_boxes[i].delete(0, 'end')
+                entry_boxes[i].insert(0, str(int(angles[i])))
+                slides[i].set(angles[i])
+            print(angles)
+            break
+   ```
+
+7. 코드 추가
+   ```python
+    serial_list = None
+
+    print("started...")
+    angles = [90, 90, 90, 90, 90]
+    ```
+
+8. 코드 추가2
+   ```python
+    slide_num = len(angles)        # num of slides
+    m_link_frames = []
+    entry_boxes = []
+    slides = []
+
+    for i in range(slide_num):
+        m_link_frame = ttk.Frame(root)
+        m_link_frames.append(m_link_frame)
+        
+        link_val = tk.StringVar()
+        ttk.Label(m_link_frame, text=f'Link {i}: ', font='Helvetica 10 bold').pack(side='left')
+        link_val_box = ttk.Entry(m_link_frame, width=6, textvariable=link_val)
+        link_val_box.pack(side='left', padx=0, pady=5)
+        entry_boxes.append(link_val_box)
+        
+        m_slide_frame = ttk.Frame(root)
+        slide = ttk.Scale(m_slide_frame, length=100, from_=0, to=180, orient="vertical")
+        slide.set(angles[i])
+        slide.pack(side='left', padx=0, pady=5)
+        slides.append(slide)
+
+    for i in range(slide_num):
+        entry_boxes[i].insert(0,'90')
+
+    # Add robot run stop buttons
+    m_robot_run_btn = ttk.Frame(root)
+    robot_run_btn = ttk.Button(m_robot_run_btn, text="run robot", command=run_robot)
+    robot_run_btn.pack(side='left', padx=10)
+    m_robot_stop_btn = ttk.Frame(root)
+    robot_stop_btn = ttk.Button(m_robot_stop_btn, text="stop robot", command=stop_robot)
+    robot_stop_btn.pack(side='left', padx=10)
+
+    # Grid layout
+    m_serial_select.grid(column=1, row=0, columnspan=3, padx=10, pady=10, sticky='w')
+    m_serial_start_btn.grid(column=3, row=0, padx=10, pady=5, sticky='w')
+    m_serial_stop_btn.grid(column=4, row=0, padx=10, pady=5, sticky='w')
+
+    for i, m_link_frame in enumerate(m_link_frames):
+        m_link_frame.grid(column=i+1, row=2, padx=10, pady=5, sticky='w')
+        m_slide_frame = slides[i].master
+        m_slide_frame.grid(column=i+1, row=6, padx=15, pady=5, sticky='w')
+
+    m_robot_run_btn.grid(column=slide_num-1, row=8, padx=10, pady=5, sticky='w')
+    m_robot_stop_btn.grid(column=slide_num, row=8, padx=10, pady=5, sticky='w')
+
+    # Set the command for each slide after they are all created
+    for i, slide in enumerate(slides):
+        slide.configure(command=lambda event, idx=i: slide_handler_base(event, idx))
+    ```
+
+9. 
