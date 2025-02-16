@@ -1085,38 +1085,49 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
 1. `select_serial()`
    ```python
    def select_serial():
-    selected_port = var.get()
-    print(selected_port)
+        selected_port = var.get()
+        print(selected_port)
     ```
-    사용자가 드롭다운 메뉴에서 포트를 선택하면 이를 출력하도록 함수의 기능을 추가하였습니다.   
+    사용자가 드롭다운 메뉴에서 포트를 선택하면 이를 출력하는 기능을 추가했습니다.   
+    * `var.get()`을 통해 드롭다운에서 선택된 포트 값을 가져옵니다.   
+    * `print(selected_port)`: 선택된 포트를 콘솔에 출력하여 현재 선택된 포트를 확인할 수 있도록 합니다.   
+
        
-2. `start_serial()`
+2. 시리얼 연결 방식 변경
    ```python
    def start_serial():
-    seq.port = var.get()
-    seq.open()
-    print("serial port opened:", seq.port)
-    ```
-    
+        seq.port = var.get()
+        seq.open()
+        print("serial port opened:", seq.port)
 
-3. `stop_serial()`
-   ```python
    def stop_serial():
-    seq.close()
-    print("serial port stopped:", seq.port)
+        seq.close()
+        print("serial port stopped:", seq.port)
     ```
-
-4. `slide_handler_base()`
+    `COM4`로 고정되어 있던 시리얼 포트를 드롭다운 메뉴에서 선택한 포트로 연결하도록 변경했습니다.   
+    * `seq.port = var.get()`: 드롭다운에서 선택된 포트를 seq 객체의 포트로 설정합니다.   
+    * `seq.open()`: 설정된 포트를 열어 시리얼 연결을 시작합니다.   
+    * `print("serial port opened:", seq.port)`: 연결을 확인할 수 있도록 메시지를 출력합니다.   
+     
+    * `seq.close()`: 연결된 시리얼 포트를 닫습니다.   
+    * `print("serial port stopped:", seq.port)`: 연결이 해제되었음을 알 수 있도록 메시지를 출력합니다.   
+       
+3. `slide_handler_base()`
    ```python
    def slide_handler_base(event, idx):
-    global angles
-    angles[idx] = slides[idx].get()
-    print(angles[idx])
-    entry_boxes[idx].delete(0, 'end')
-    entry_boxes[idx].insert(0, str(int(angles[idx])))
+        global angles
+        angles[idx] = slides[idx].get()
+        print(angles[idx])
+        entry_boxes[idx].delete(0, 'end')
+        entry_boxes[idx].insert(0, str(int(angles[idx])))
     ```
+    기존에 `angle_0`만 제어 가능한 코드에서 `angles[idx]`를 통해 다중 모터를 제어할 수 있도록 변경했습니다.   
+    * `angles[idx] = slides[idx].get()`:  사용자가 특정 슬라이더를 조작하면, 해당 서보 모터의 값을 angles 리스트에 저장합니다.   
+    * `entry_boxes[idx].delete(0, 'end')`: 기존 입력 필드 값을 삭제합니다.   
+    * `entry_boxes[idx].insert(0, str(int(angles[idx])))`: 새로운 값을 입력 필드에 반영하여 슬라이더와 동기화합니다.   
+     
 
-5. `run_robot()`
+4. `run_robot()`
    ```python
    def run_robot():
     global angles
@@ -1125,8 +1136,12 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     seq.write(cmd.encode())
     print(cmd.encode())
    ```
+   다섯 개의 서보 모터에 대해 동시에 제어 명령을 내리는 합수입니다.   
+   * `angles[]`: 각 서보 모터의 값을 리스트 형태로 관리합니다.   
+   *  `cmd`: 다섯 개의 서보 모터의 값이 포함된 문자열 명령어를 생성합니다.   
+             예를 들어, `base`부터 순서대로 `120`, `110`, `100`, `90`, `80`를 입력할 경우 `2a120b110c100d90e80\n`형태로 명령어를 만들어 이를 시리얼 포트로 전송하여 JDCobot100을 제어합니다.   
 
-6. `stop_robot()`
+5. `stop_robot()`
    ```python
    def stop_robot():
     cmd = '1abcdef'
@@ -1142,22 +1157,21 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
             print(angles)
             break
    ```
+   로봇이 정지하면 각도를 읽어와 UI에서 슬라이더 값과 입력 필드가 자동으로 변경되는 함수입니다.
+   * `cmd = '1abcdef'`, `seq.write(cmd.encode())`: 로봇 정지 명령어(`1abcdef`)를 전송합니다.   
+   * `while True: `: 시리얼 포트에서 데이터를 수신할 때까지 대기합니다.   
+   * `angles[i] = data[data.find(chr(97+i))+1:data.find(chr(98+i))]`: 받은 데이터에서 서보 모터의 각도를 추출하여 업데이트합니다.   
 
-7. 코드 추가
-   ```python
-    serial_list = None
-
-    print("started...")
-    angles = [90, 90, 90, 90, 90]
-    ```
-
-8. 코드 추가2
+6. UI 요소 생성
    ```python
     slide_num = len(angles)        # num of slides
     m_link_frames = []
     entry_boxes = []
     slides = []
+    ```
 
+7. 슬라이더 및 입력 필드 생성
+   ```python
     for i in range(slide_num):
         m_link_frame = ttk.Frame(root)
         m_link_frames.append(m_link_frame)
@@ -1173,10 +1187,15 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
         slide.set(angles[i])
         slide.pack(side='left', padx=0, pady=5)
         slides.append(slide)
-
+    ```
+8. 입력 초기화
+   ```python
     for i in range(slide_num):
         entry_boxes[i].insert(0,'90')
+    ```
 
+9. run, stop 버튼
+    ```python
     # Add robot run stop buttons
     m_robot_run_btn = ttk.Frame(root)
     robot_run_btn = ttk.Button(m_robot_run_btn, text="run robot", command=run_robot)
@@ -1184,7 +1203,11 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
     m_robot_stop_btn = ttk.Frame(root)
     robot_stop_btn = ttk.Button(m_robot_stop_btn, text="stop robot", command=stop_robot)
     robot_stop_btn.pack(side='left', padx=10)
+    ```
 
+
+10. Grid 레이아웃을 활용한 UI 배치 개선
+    ```python
     # Grid layout
     m_serial_select.grid(column=1, row=0, columnspan=3, padx=10, pady=10, sticky='w')
     m_serial_start_btn.grid(column=3, row=0, padx=10, pady=5, sticky='w')
@@ -1197,10 +1220,13 @@ m_serial_stop_btn.grid(column=2,row=1,padx=10,pady=5,sticky='w')
 
     m_robot_run_btn.grid(column=slide_num-1, row=8, padx=10, pady=5, sticky='w')
     m_robot_stop_btn.grid(column=slide_num, row=8, padx=10, pady=5, sticky='w')
+    ```
 
+
+11. 슬라이더 값 변경 이벤트 등록 방식 개선
+    ```python
     # Set the command for each slide after they are all created
     for i, slide in enumerate(slides):
         slide.configure(command=lambda event, idx=i: slide_handler_base(event, idx))
     ```
-
-9. 
+    
