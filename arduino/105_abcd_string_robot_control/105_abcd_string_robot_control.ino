@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <U8x8lib.h>
+//#include <U8x8lib.h>
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);
@@ -69,7 +69,7 @@ String inString;
 void setup() {
   Serial.begin(115200);
 
-  u8x8.begin();
+  /*u8x8.begin();
   u8x8.setPowerSave(0);
   u8x8.setFont(u8x8_font_chroma48medium8_r);
   u8x8.setCursor(0, 1);
@@ -79,7 +79,7 @@ void setup() {
   u8x8.setCursor(0, 3);
   u8x8.print("standby");
   u8x8.setCursor(0, 4);
-  u8x8.print("          ");
+  u8x8.print("          ");*/
 
   pwm.begin();
   pwm.setOscillatorFrequency(27000000);
@@ -94,7 +94,7 @@ void loop() {
     char cmd = inString[0];
     if (cmd == '1') {
       clear_oled();
-      u8x8.drawString(0, 0, "read angles");
+      //u8x8.drawString(0, 0, "read angles");
       serial_print();
   
     } else if (cmd == '2') {
@@ -131,7 +131,7 @@ void loop() {
 
     } else if (cmd == '4') {
       clear_oled();
-      u8x8.drawString(0, 0, "stop servo motors");
+      //u8x8.drawString(0, 0, "stop servo motors");
       stop_flag = true;
       serial_print();
     }
@@ -170,7 +170,7 @@ void resetServos() {
 }
 
 void display_angles() {
-  clear_oled();
+  /*clear_oled();
   u8x8.setFont(u8x8_font_chroma48medium8_r);
   u8x8.drawString(0, 0, ("sig: " + inString.substring(0, 10)).c_str());
   u8x8.drawString(0, 1, ("     " + inString.substring(10)).c_str());
@@ -179,15 +179,15 @@ void display_angles() {
   u8x8.drawString(0, 4, ("upperArm:  " + String((int)upperarmAngle)).c_str());
   u8x8.drawString(0, 5, ("foreArm:   " + String((int)forearmAngle)).c_str());
   u8x8.drawString(0, 6, ("gripper:   " + String((int)gripperAngle)).c_str());
-  delay(100);
+  delay(100);*/
 }
 
 void clear_oled() {
-  u8x8.setFont(u8x8_font_chroma48medium8_r);
+  /*u8x8.setFont(u8x8_font_chroma48medium8_r);
   for (int i = 0; i < 7; i++) {
     u8x8.drawString(0, i, "                   ");
   }
-  delay(100);
+  delay(100);*/
 }
 
 void set_servo(uint8_t n, double angle) {
